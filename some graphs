@@ -1,0 +1,126 @@
+---
+title: "OECD work"
+author: "Team 5"
+date: "`r format(Sys.time(), '%d-%m-%Y')`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r}
+setwd("D:/Chris/Documents/Edinburgh Health Data Science Intro/Datathon")
+```
+
+
+
+```{r}
+library(tidyverse)
+library(prettydoc) #for other theme options 
+library(rmdformats) #for other theme options 
+library(gapminder) #for our data
+library(knitr) #for report generation & tables 
+library(kableExtra) #for pretty tables
+library(ggplot2)
+library(dplyr)
+library(maps)
+library(viridis)
+library(stringr)
+```
+
+
+```{r}
+library(readr)
+HEALTH_PROC_20102022110940978 <- read_csv("HEALTH_PROC_20102022110940978.csv")
+View(HEALTH_PROC_20102022110940978)
+```
+```{r}
+summary(HEALTH_PROC_20102022110940978)
+```
+
+```{r}
+glimpse(HEALTH_PROC_20102022110940978)
+```
+
+```{r}
+
+head(HEALTH_PROC_20102022110940978)
+
+```
+
+```{r}
+
+View(HEALTH_PROC_20102022110940978) 
+```
+
+```{r table-data-plain}
+HEALTH_PROC_20102022110940978 %>% 
+  select(Variable) %>% 
+  sample_n(1000) 
+```
+
+```{r task-5}
+HEALTH_PROC_20102022110940978 %>% 
+  select(-Variable) %>% 
+  sample_n(10) %>% 
+  kable(caption = "Sample variables from OECD dataset", digits = 2) %>%
+  kable_styling(bootstrap_options = "striped", full_width = F)
+```
+
+Attempting to pivot into long to wide
+
+```{r}
+HEALTH_PROC_20102022110940978 %>% 
+  pivot_wider(names_from = "Country", values_from = "Year")
+```
+
+
+```{r}
+heartinvariable <- HEALTH_PROC_20102022110940978[str_detect(HEALTH_PROC_20102022110940978$Variable, "eart"), ]
+head(heartinvariable)
+```
+
+
+```{r}
+heartinvariable %>% 
+  filter(Year == "2020",
+         Variable == "Other ischaemic heart disease") %>% 
+  ggplot(aes(x = COU, y = Value, )) + 
+  geom_col() + 
+  labs(title = "Other Ischaemic Heart", 
+       y = "Value") +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
+```
+
+```{r}
+heartinvariable %>% 
+  filter(Variable == "Other ischaemic heart disease") %>% 
+  ggplot(aes(x = COU, y = Value, )) + 
+  geom_col() + 
+  facet_wrap(~Year) +
+  labs(title = "Other Ischaemic Heart", 
+       y = "Value")
+```
+
+```{r}
+heartinvariable %>% 
+  filter(COU == "AUS") %>% 
+  ggplot(aes(x = Variable, y = Value, )) + 
+  geom_col() + 
+  labs(title = "Other Ischaemic Heart", 
+       y = "Value") +
+    theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
+```
+
+```{r}
+heartinvariable %>% 
+  filter(COU == "AUS") %>% 
+  ggplot(aes(x = Variable, y = Value, )) + 
+  geom_col() +
+  facet_wrap(~Year) +
+  labs(title = "Ischaemic Heart Australia", 
+       y = "Value") 
+```
