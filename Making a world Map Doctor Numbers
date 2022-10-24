@@ -1,0 +1,119 @@
+
+```{r}
+setwd("D:/Chris/Documents/Edinburgh Health Data Science Intro/Datathon")
+```
+
+
+
+```{r}
+library(tidyverse)
+library(prettydoc) #for other theme options 
+library(rmdformats) #for other theme options 
+library(gapminder) #for our data
+library(knitr) #for report generation & tables 
+library(kableExtra) #for pretty tables
+library(ggplot2)
+library(dplyr)
+library(maps)
+library(viridis)
+library(stringr)
+library(rworldmap
+```
+
+
+practicing doctors from here:
+https://data.oecd.org/healthres/doctors.htm#indicator-chart
+
+
+```{r task3}
+joined <- practicing_doctors %>%
+  left_join(HEALTH_PROC_20102022110940978, by = c("LOCATION" = "COU"))
+```
+
+
+medical graduates from here:
+https://data.oecd.org/healthres/medical-graduates.htm
+
+```{r}
+
+library(readr)
+medical_graduates <- read_csv("DP_LIVE_24102022143511807.csv")
+View(medical_graduates)
+```
+
+
+
+```{r}
+doctors_2020 <- practicing_doctors %>% 
+            filter(TIME == "2020")
+```
+
+
+```{r}
+doctors_2020_map <- doctors_2020 %>% 
+  select(LOCATION, 
+         Value)
+```
+
+
+```{r task3}
+mapworld <- countryExData %>%
+  full_join(doctors_2020_map, by = c("ISO3V10" = "LOCATION"))
+mapworld
+```
+
+
+```{r}
+glimpse(mapworld)
+```
+
+below not needed but how to replace NAs with a zero
+
+```{r}
+mapworldzeros <- mapworld %>% 
+          mutate(Value = coalesce(Value, 0))
+```
+
+
+```{r}
+glimpse(mapworldzeros)
+```
+
+
+```{r}
+?rworldmap
+  
+```
+
+
+```{r}
+?mapCountryData()
+```
+
+
+```{r}
+mapCountryData()
+data("mapworld",envir=environment(),package="rworldmap")
+sPDF <- joinCountryData2Map(mapworld
+              , joinCode = "ISO3"
+              , nameJoinColumn = "ISO3V10"
+              )
+mapCountryData( sPDF
+              , nameColumnToPlot="Value" 
+              ) 
+```
+
+
+```{r}
+mapworld %>% 
+  filter(Value != "NA") %>% 
+  select(Country, 
+         Value) %>% 
+  kbl() %>% 
+  kable_styling()
+  
+```
+
+
+
+
