@@ -124,3 +124,14 @@ heartinvariable %>%
   labs(title = "Ischaemic Heart Australia", 
        y = "Value") 
 ```
+
+#sepsis table example
+
+```{r}
+tablesepsis <- HEALTH_PROC_20102022110940978 %>% 
+  filter(YEA == "2020", Variable == "Septicaemia", Measure == "Per 100 000 population") %>% 
+  select(Country, Value) %>% 
+  kable(caption = "Septicaemia Per 100 000 population in 2020", digits = 0) %>%
+  kable_styling(bootstrap_options = "striped", full_width = F)
+tablesepsis
+```
