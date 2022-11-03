@@ -1,0 +1,370 @@
+---
+title: "Team 5 3 graphs"
+author: "Chris Weatherburn"
+date: "`r format(Sys.time(), '%d-%m-%Y')`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r}
+setwd("D:/Chris/Documents/Edinburgh Health Data Science Intro/Datathon")
+```
+
+
+
+```{r}
+library(tidyverse)
+library(prettydoc) #for other theme options 
+library(rmdformats) #for other theme options 
+library(gapminder) #for our data
+library(knitr) #for report generation & tables 
+library(kableExtra) #for pretty tables
+library(ggplot2)
+library(dplyr)
+library(maps)
+library(viridis)
+library(stringr)
+library(rworldmap)
+```
+
+
+```{r}
+library(readr)
+HEALTH_PROC_20102022110940978 <- read_csv("HEALTH_PROC_20102022110940978.csv")
+View(HEALTH_PROC_20102022110940978)
+```
+
+
+```{r}
+summary(HEALTH_PROC_20102022110940978)
+
+glimpse(HEALTH_PROC_20102022110940978)
+
+head(HEALTH_PROC_20102022110940978)
+```
+
+
+use below to show how many rows each country has submitted data for from whole database
+
+```{r}
+HEALTH_PROC_20102022110940978 %>%
+  group_by(COU) %>% 
+  summarize(count = n())
+```
+use below to make kable
+
+```{r}
+HEALTH_PROC_20102022110940978 %>%
+  group_by(Country) %>% 
+  summarize(count = n()) %>% 
+  kbl(caption = "Countries who submitted data") %>% 
+  kable_styling()
+```
+
+
+
+use below to see the measures from one operation (one variable in Variable column)
+
+```{r}
+HEALTH_PROC_20102022110940978 %>%
+  group_by(Measure) %>% 
+  filter(Variable == "Knee replacement") %>% 
+  summarize()
+```
+
+use below to count the measures
+
+```{r}
+HEALTH_PROC_20102022110940978 %>%
+  group_by(Measure) %>% 
+  
+  filter(         Variable == "Knee replacement") %>% 
+  summarize(count_by_year_in_2020 = n())
+```
+
+so will use this measure:
+Waiting times from specialist assessment to treatment: Mean (days)
+as most amount of data
+
+```{r}
+HEALTH_PROC_20102022110940978  <- HEALTH_PROC_20102022110940978 %>% 
+    mutate(Variable = str_replace(Variable, "Hip replacement (total and partial, including the revision of hip replacement)", "Hip Replacement"))
+HEALTH_PROC_20102022110940978 
+```
+
+
+```{r}
+HEALTH_PROC_20102022110940978  %>% 
+  select(Variable,
+         Measure,
+         Country, 
+         Year,
+         Value) %>% 
+  filter(Year == "2020",
+         Measure == "Waiting times from specialist assessment to treatment: Mean (days)",
+         Variable == "Hip replacement (total and partial, including the revision of hip replacement)" | Variable == "Knee replacement"| Variable == "Cataract surgery") %>% 
+    ggplot(aes(x = Country, y = Value, )) + 
+  geom_col() +
+  facet_wrap(~Variable) +
+  labs(title = "Waiting times 2020 for Elective Procedures", 
+       y = "Mean waiting times from assessment to treatment (days)") +
+  theme(axis.text.x = element_text(angle = 65, vjust = 1, hjust = 1))
+```
+
+# need to rename Hip replacement and show this above
+
+```{r}
+HEALTH_PROC_20102022110940978  %>% 
+  select(Variable,
+         Measure,
+         Country, 
+         Year,
+         Value) %>% 
+  filter(Year == "2021",
+         Measure == "Waiting times from specialist assessment to treatment: Mean (days)",
+         Variable == "Hip replacement (total and partial, including the revision of hip replacement)" | Variable == "Knee replacement"| Variable == "Cataract surgery") %>% 
+    ggplot(aes(x = Country, y = Value, )) + 
+  geom_col() +
+  facet_wrap(~Variable) +
+  labs(title = "Waiting times for procedures since specialist assessment 2021", 
+       y = "Mean waiting times from assessment to treatment (days)") +
+  theme(plot.title=element_text(hjust=0.5), axis.text.x = element_text(angle = 65, vjust = 1, hjust = 1), plot.background = element_rect(fill = "lightblue")) 
+```
+
+```{r}
+HEALTH_PROC_20102022110940978 %>% 
+  mutate
+```
+
+
+
+```{r}
+HEALTH_PROC_20102022110940978  %>% 
+  select(Variable,
+         Measure,
+         Country, 
+         Year,
+         Value) %>% 
+  filter(Measure == "Waiting times from specialist assessment to treatment: Mean (days)",
+         Variable == "Cataract surgery") %>% 
+    ggplot(aes(x = Year, y = Value, )) + 
+  geom_line() +
+  geom_point() +
+  facet_wrap(~Country) +
+  labs(title = "Waiting times for Cataract Procedures", 
+       y = "Mean waiting times from assessment to treatment (days)") +
+  theme(plot.title=element_text(hjust=0.5), axis.text.x = element_text(angle = 90, vjust = 1, hjust = 1), plot.background = element_rect(fill = "lightblue")) 
+```
+
+```{r}
+HEALTH_PROC_20102022110940978  %>% 
+  select(Variable,
+         Measure,
+         Country, 
+         Year,
+         Value) %>% 
+  filter(Measure == "Waiting times from specialist assessment to treatment: Mean (days)",
+         Variable == "Knee replacement") %>% 
+    ggplot(aes(x = Year, y = Value, )) + 
+  geom_line() +
+  geom_point() +
+  facet_wrap(~Country) +
+  labs(title = "Waiting times for Knee replacement", 
+       y = "Mean waiting times from assessment to treatment (days)") +
+  theme(plot.title=element_text(hjust=0.5), axis.text.x = element_text(angle = 0, vjust = 1, hjust = 1), plot.background = element_rect(fill = "lightblue")) 
+```
+
+```{r}
+HEALTH_PROC_20102022110940978  %>% 
+  select(Variable,
+         Measure,
+         Country, 
+         Year,
+         Value) %>% 
+  filter(Measure == "Waiting times from specialist assessment to treatment: Mean (days)",
+         Variable == "Hip replacement (total and partial, including the revision of hip replacement)") %>% 
+    ggplot(aes(x = Year, y = Value, )) + 
+  geom_line() +
+  geom_point() +
+  facet_wrap(~Country) +
+  labs(title = "Waiting times for Hip Procedures", 
+       y = "Mean waiting times from assessment to treatment (days)") +
+  theme(plot.title=element_text(hjust=0.5), axis.text.x = element_text(angle = 0, vjust = 1, hjust = 1), plot.background = element_rect(fill = "lightblue")) 
+```
+
+```{r}
+HEALTH_PROC_20102022110940978  %>% 
+  select(Variable,
+         Measure,
+         Country, 
+         Year,
+         Value) %>% 
+  filter(Measure == "Waiting times from specialist assessment to treatment: Mean (days)",
+         Variable == "Hip replacement (total and partial, including the revision of hip replacement)") %>% 
+    ggplot(aes(x = Year, y = Value, group=Country, color = Country)) + 
+  geom_line() +
+  geom_point() +
+  labs(title = "Waiting times for Hip Procedures", 
+       y = "Mean waiting times from assessment to treatment (days)") +
+  theme(plot.title=element_text(hjust=0.5), axis.text.x = element_text(angle = 0, vjust = 1, hjust = 1), plot.background = element_rect(fill = "lightblue")) 
+```
+practicing doctors from here:
+https://data.oecd.org/healthres/doctors.htm#indicator-chart
+
+```{r}
+library(readr)
+practicing_doctors <- read_csv("DP_LIVE_24102022140628650.csv")
+View(practicing_doctors)
+```
+
+
+
+medical graduates from here:
+https://data.oecd.org/healthres/medical-graduates.htm
+
+```{r}
+
+library(readr)
+medical_graduates <- read_csv("DP_LIVE_24102022143511807.csv")
+View(medical_graduates)
+```
+
+```{r}
+medical_graduates <- medical_graduates %>% 
+  mutate (medical_graduates, graduatesper1000 = Value/100)
+```
+
+
+
+```{r task3}
+joinedgraduatesanddoctors <- 
+  full_join(medical_graduates, practicing_doctors, by = c("LOCATION"))
+joinedgraduatesanddoctors
+```
+
+```{r}
+joinedgraduatesanddoctors <- joinedgraduatesanddoctors %>% 
+  mutate(joinedgraduatesanddoctors, Doctors_and_Graduates_per_1000 = graduatesper1000+Value.y)
+```
+
+
+
+```{r}
+joinedgraduatesanddoctors <- joinedgraduatesanddoctors %>% 
+            filter(TIME.y == "2020")
+```
+
+
+```{r}
+doctors_2020_map <- joinedgraduatesanddoctors %>% 
+  select(LOCATION, 
+         Doctors_and_Graduates_per_1000)
+```
+
+
+```{r task3}
+mapworld <- countryExData %>%
+  full_join(doctors_2020_map, by = c("ISO3V10" = "LOCATION"))
+mapworld
+```
+
+
+
+```{r}
+mapCountryData()
+data("mapworld",envir=environment(),package="rworldmap")
+sPDF <- joinCountryData2Map(mapworld
+              , joinCode = "ISO3"
+              , nameJoinColumn = "ISO3V10"
+              )
+mapCountryData( sPDF
+              , nameColumnToPlot="Doctors_and_Graduates_per_1000" 
+              , mapTitle="Doctors and Medical Graduates per 1000 of Population in 2020"
+              , oceanCol='lightblue'
+              , missingCountryCol='white'
+                           ) 
+```
+
+```{r}
+mapCountryData()
+data("mapworld",envir=environment(),package="rworldmap")
+sPDF <- joinCountryData2Map(mapworld
+              , joinCode = "ISO3"
+              , nameJoinColumn = "ISO3V10"
+              )
+mapCountryData( sPDF
+              , nameColumnToPlot="Doctors_and_Graduates_per_1000" 
+              , mapTitle="Doctors and Medical Graduates per 1000 of Population in 2020"
+              , oceanCol='lightblue'
+              , missingCountryCol='white'
+              , mapRegion='Europe'
+                           ) 
+```
+
+```{r}
+medical_graduates %>%
+  group_by(TIME) %>% 
+    summarize(count_by_year_in_2020 = n())
+```
+
+table waiting times versus graduates and doctors
+
+
+```{r}
+HIP_OECD_data <- HEALTH_PROC_20102022110940978 %>%
+  filter(Year == "2020", 
+         Measure == "Waiting times from specialist assessment to treatment: Mean (days)",
+         Variable == "Hip replacement (total and partial, including the revision of hip replacement)" )
+HIP_OECD_data
+```
+
+
+
+
+
+```{r}
+joinedfortablehip <-
+  full_join(HIP_OECD_data, doctors_2020_map, by = c("COU" = "LOCATION"))
+```
+
+
+
+# need to reorder the below and remove the decimals
+
+
+```{r}
+joinedfortablehip %>% 
+  dplyr::arrange(-Value) %>% 
+  select(Country, 
+         Doctors_and_Graduates_per_1000,
+         Value) %>% 
+  filter(Value != "NA") %>% 
+  filter(Doctors_and_Graduates_per_1000 != "NA") %>% 
+  group_by(Country) %>% 
+    select(c(1,2,3)) %>% 
+  knitr::kable(caption = "Hip Replacements waiting time against total doctors and medical graduates in 2020", digits = c(0, 1, 0),
+             col.names = c("Country",
+                           "Doctors & Medical Graduates per 1000",
+                           "Waiting times for Hip Procedures Mean days")) %>%
+  kable_classic_2()
+```
+
+
+```{r}
+joinedfortablehip %>% 
+  select(Country, 
+         Doctors_and_Graduates_per_1000,
+         Value) %>% 
+  filter(Value != "NA") %>% 
+  filter(Doctors_and_Graduates_per_1000 != "NA") %>% 
+  group_by(Country) %>% 
+    select(c(1,2,3)) %>% 
+  ggplot(aes(x = Doctors_and_Graduates_per_1000, y = Value, color = Country)) + 
+  geom_line() + 
+  geom_point()
+```
